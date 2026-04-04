@@ -3,7 +3,7 @@
 # Claude Code (local-only — not committed)
 .claude/
 CLAUDE.md
-/docs
+docs/
 
 # macOS
 .DS_Store
