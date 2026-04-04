@@ -18,54 +18,69 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 
 ## Current Session State
 
-**Date:** Mar 28, 2026
-**Current Phase:** Phase 1 — Project Setup & Plane Detection
-**Last Milestone:** Documentation scaffolding complete; no Swift code written yet.
-**Next Task:** Replace SwiftData template with ARViewContainer in ContentView.swift,
-then implement ARSessionManager skeleton with horizontal plane detection.
+**Date:** Apr 3, 2026
+**Current Phase:** Phase 2 — Scene Geometry & Object Placement ✅ COMPLETE
+**Last Milestone:** Tap-to-place verified on device — white sphere anchors to detected plane and stays grounded as device moves.
+**Next Task:** Week 3 — LightingEstimator (ARLightEstimate + ARDirectionalLightEstimate).
 
 ---
 
 ## What Was Accomplished
 
-This was a **documentation-only session** — no Swift or Metal code was written.
+### Week 1 (Mar 28) — CLOSED ✅
 
-**Files created/updated:**
-- `CLAUDE.md` — appended 4 new gotchas, `## Build Commands`, `## GPU Frame Capture`, `## Test Strategy`, `## Folder Structure (Planned)` sections; updated Xcode 16+ coding convention note
-- `docs/ARCHITECTURE.md` — written from scratch: MVVM overview, folder structure, all 4 manager component specs, ASCII data flow diagram, Metal pipeline design, threading model, key API reference table
-- `docs/SHADOW_MATH.md` — written from scratch: full planar shadow matrix derivation (general + horizontal simplified), Swift/SIMD code sketch, degeneracy guard, penumbra radial falloff with MSL pseudocode, lux→intensity mapping, color temperature tint (stretch), disc mesh sizing, calibration table
-- `docs/PROGRESS.md` — written from scratch: 6-week tracker with Week 1 pre-populated from proposal timeline, Weeks 2–6 as structured templates, stretch goals, Report & Presentation checklist
-- `docs/HANDOFF.md` — written from scratch: session start instructions, architecture snapshot, cumulative gotchas list
-- `docs/DECISIONS.md` — written from scratch: 6 ADRs (ARKit, RealityKit, CustomMaterial, Metal/MSL, @Observable, horizontal planes only), each with Decision/Rationale/Rejected Alternatives
+**Files deleted:**
+- `Penumbra/Penumbra/Item.swift` — SwiftData model removed
+
+**Files modified:**
+- `Penumbra/Penumbra/PenumbraApp.swift` — stripped SwiftData/ModelContainer boilerplate; now a plain `WindowGroup { ContentView() }`
+- `Penumbra/Penumbra/ContentView.swift` — replaced NavigationSplitView/SwiftData body with `ARViewContainer().ignoresSafeArea()`
+
+**Files created:**
+- `Penumbra/Penumbra/Views/ARViewContainer.swift` — `UIViewRepresentable` wrapping `ARView`; `Coordinator` holds strong ref to `ARSessionManager`
+- `Penumbra/Penumbra/Managers/ARSessionManager.swift` — `@Observable @MainActor` ARKit session manager; `ARWorldTrackingConfiguration` with `.horizontal` plane detection and `.automatic` environment texturing; debug blue translucent plane visualization via `ModelEntity` + `SimpleMaterial`
+
+**Verified on device:** Blue translucent rectangles appear and grow on detected horizontal surfaces. Plane updates (resize/reposition) work as device moves.
+
+### Week 2 (Apr 3) — CLOSED ✅
+
+**Files created:**
+- `Penumbra/Penumbra/Managers/SceneManager.swift` — `@Observable @MainActor`; `weak var arView`; raycasts against `.existingPlaneGeometry` on tap; places white sphere anchored to hit plane anchor; disables `GroundingShadowComponent` (prep for Week 4 custom shadow)
+
+**Files modified:**
+- `Penumbra/Penumbra/Views/ARViewContainer.swift` — added `SceneManager` instantiation and `UITapGestureRecognizer` wired through Coordinator `@objc handleTap`
+
+**Verified on device:** Sphere placed at tap location, stays pinned to detected plane as device moves.
 
 ---
 
 ## What Was Left Incomplete
 
-No Swift code has been written yet. The Xcode project still contains the default SwiftData template (Item.swift, ContentView.swift with SwiftData boilerplate). All Week 1 goals remain to be implemented.
+Weeks 1 and 2 are fully closed. No incomplete items.
 
 ---
 
 ## Unresolved Bugs
 
-None — no code has been written yet.
+None.
 
 ---
 
 ## Key Decisions Made
 
-All major architecture decisions are now formally recorded as ADRs in `docs/DECISIONS.md`. No new decisions beyond what was already in the proposal.
+- `ARSessionManager` takes `ARView` in its initializer (rather than creating it internally) so the view layer retains ownership of `ARView` and the manager stays focused on session logic.
+- Debug plane visualization uses a single `ModelEntity` plane mesh per anchor (not a dot grid) — simpler and cheaper for GPU. Will be removed or made togglable in Week 5.
 
 ---
 
-## Exact Next Steps
+## Exact Next Steps (Week 2)
 
-1. **Delete SwiftData template code:** Remove `Item.swift`; strip SwiftData imports and `@Query` from `ContentView.swift`.
-2. **Create `ARViewContainer.swift`** in `Penumbra/Views/` — `UIViewRepresentable` wrapping `ARView`. Update `ContentView.swift` to host it.
-3. **Create `ARSessionManager.swift`** in `Penumbra/Managers/` — `@Observable @MainActor` class; configure `ARWorldTrackingConfiguration` with `.horizontalPlane` detection and `environmentTexturing: .automatic`; start session.
-4. **Add debug plane visualization** — add a translucent `ModelEntity` plane mesh on each detected `ARPlaneAnchor` so you can confirm detection is working on device.
-5. **Test on physical iPad** — build and run, walk around a table/floor, confirm plane anchors appear.
-6. **Commit** once plane detection is verified on device.
+1. **Create `Penumbra/Penumbra/Managers/SceneManager.swift`** — `@Observable @MainActor` class; `weak var arView: ARView?`; published `placedObjects: [ModelEntity] = []`.
+2. **Wire into `ARViewContainer.makeUIView`** — instantiate `SceneManager`, store on `Coordinator`, add `UITapGestureRecognizer` targeting `SceneManager.handleTap(_:)`.
+3. **Implement `SceneManager.handleTap(_:)`** — call `arView.raycast(from: touchLocation, allowing: .existingPlaneGeometry, alignment: .horizontal)`; take `results.first`.
+4. **On hit** — create `ModelEntity(mesh: .generateSphere(radius: 0.05), materials: [SimpleMaterial(color: .white, isMetallic: false)])`; set `model.castsShadow = false` (prep for Week 4); anchor via `AnchorEntity(anchor: hit.anchor)`; add to scene; append to `placedObjects`.
+5. **Verify object stays grounded** as device moves — it should stay pinned to the plane.
+6. **Commit** once placement is stable on device.
 
 ---
 
@@ -77,8 +92,8 @@ Quick reference for re-orientation at the start of any session:
 
 | Manager | Owns | Publishes |
 |---------|------|-----------|
-| `ARSessionManager` | ARSession, ARWorldTrackingConfiguration | detectedPlanes, currentFrame |
-| `SceneManager` | ARView, all ModelEntities | placedObjects |
+| `ARSessionManager` | ARSession, ARWorldTrackingConfiguration | detectedPlaneCount |
+| `SceneManager` | `ARView` (weak ref), all placed `ModelEntity` instances | `placedObjects: [ModelEntity]` |
 | `LightingEstimator` | ARLightEstimate processing | lightDirection, intensity, colorTemp |
 | `ShadowRenderer` | CustomMaterial instances | (none — called by SceneManager) |
 
@@ -136,5 +151,12 @@ All managers are `@MainActor` and `@Observable`.
    to the project directory are automatically included in the build target — no
    manual Xcode project navigator additions needed, as long as the file is placed
    in the correct source group folder.
+
+6. **`ARSessionDelegate` methods are called on a background thread.** The delegate
+   callbacks (`didAdd`, `didUpdate`, `didRemove`) arrive off the main actor. Bridge
+   back with `Task { @MainActor in ... }` before touching any RealityKit entities or
+   `@Observable` properties.
+
+7. **SceneManager must hold ARView weakly.** Use `weak var arView: ARView?` in SceneManager — `ARViewContainer`/`Coordinator` already owns the strong reference. A strong reference in SceneManager would create a retain cycle.
 
 _(Add new gotchas here as discovered)_

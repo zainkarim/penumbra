@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		179140D62F78803200CE88DE /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 179140D42F78803200CE88DE /* ARKit.framework */; };
+		179140D72F78803200CE88DE /* RealityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 179140D52F78803200CE88DE /* RealityKit.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		179140A52F7865A800CE88DE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +32,8 @@
 		179140952F7865A500CE88DE /* Penumbra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Penumbra.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		179140A42F7865A800CE88DE /* PenumbraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PenumbraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		179140AE2F7865A800CE88DE /* PenumbraUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PenumbraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		179140D42F78803200CE88DE /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
+		179140D52F78803200CE88DE /* RealityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealityKit.framework; path = System/Library/Frameworks/RealityKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +59,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				179140D72F78803200CE88DE /* RealityKit.framework in Frameworks */,
+				179140D62F78803200CE88DE /* ARKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +87,7 @@
 				179140972F7865A500CE88DE /* Penumbra */,
 				179140A72F7865A800CE88DE /* PenumbraTests */,
 				179140B12F7865A800CE88DE /* PenumbraUITests */,
+				179140D32F78803100CE88DE /* Frameworks */,
 				179140962F7865A500CE88DE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +100,15 @@
 				179140AE2F7865A800CE88DE /* PenumbraUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		179140D32F78803100CE88DE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				179140D42F78803200CE88DE /* ARKit.framework */,
+				179140D52F78803200CE88DE /* RealityKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -400,11 +419,13 @@
 				DEVELOPMENT_TEAM = AVSVTS4UZ4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Penumbra uses the camera for augmented reality.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -432,11 +453,13 @@
 				DEVELOPMENT_TEAM = AVSVTS4UZ4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Penumbra uses the camera for augmented reality.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

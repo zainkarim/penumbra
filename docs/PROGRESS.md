@@ -11,16 +11,16 @@ same time.
 **Dates:** Mar 28–30 | **Budget:** 6 hrs | **Deadline:** Mar 30
 
 ### Goals
-- [ ] Create Xcode project (Penumbra, SwiftUI, iOS 17+)
-- [ ] Replace SwiftData template code with ARViewContainer (UIViewRepresentable)
-- [ ] Implement ARSessionManager skeleton (@Observable, ARWorldTrackingConfiguration)
-- [ ] Enable horizontal plane detection (.horizontalPlane)
-- [ ] Verify plane detection renders visually on device (debug plane visualization)
-- [ ] Create Managers/, Views/, Shaders/, Models/ folder structure
-- [ ] Commit working plane detection milestone
+- [x] Create Xcode project (Penumbra, SwiftUI, iOS 17+)
+- [x] Replace SwiftData template code with ARViewContainer (UIViewRepresentable)
+- [x] Implement ARSessionManager skeleton (@Observable, ARWorldTrackingConfiguration)
+- [x] Enable horizontal plane detection (.horizontalPlane)
+- [x] Verify plane detection renders visually on device (debug plane visualization)
+- [x] Create Managers/, Views/ folder structure
+- [x] Commit working plane detection milestone
 
 ### Status
-Started Mar 28
+✅ Complete — Mar 28
 
 ### Hours Log
 | Date | Hours | Notes |
@@ -39,21 +39,21 @@ _None yet_
 **Dates:** Mar 31–Apr 6 | **Budget:** 8 hrs | **Deadline:** Apr 6
 
 ### Goals
-- [ ] Implement tap-to-place gesture in SceneManager
-- [ ] ARView.raycast() against detected horizontal planes
-- [ ] Place a built-in 3D model (sphere or cube ModelEntity) at tap location
-- [ ] Anchor entity to detected plane anchor
-- [ ] Basic scene lighting (default RealityKit environment lighting)
-- [ ] Verify object stays grounded as device moves
-- [ ] Commit working object placement milestone
+- [x] Implement tap-to-place gesture in SceneManager
+- [x] ARView.raycast() against detected horizontal planes
+- [x] Place a built-in 3D model (sphere or cube ModelEntity) at tap location
+- [x] Anchor entity to detected plane anchor
+- [x] Basic scene lighting (default RealityKit environment lighting)
+- [x] Verify object stays grounded as device moves
+- [x] Commit working object placement milestone
 
 ### Status
-_Not started_
+✅ Complete — Apr 3
 
 ### Hours Log
 | Date | Hours | Notes |
 |------|-------|-------|
-| | | |
+| Apr 3 | — | |
 | **Total** | **—** | |
 
 ### Blockers
