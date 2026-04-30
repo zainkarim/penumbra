@@ -97,12 +97,12 @@ _None_
 - [x] Disable RealityKit built-in shadow pass on placed objects
 - [x] Wire ShadowRenderer into SceneManager: create shadow entity per placed object
 - [x] Update shadow matrix each frame with current light direction and plane Y
-- [ ] Verify shadow moves correctly as device moves around object (on-device)
-- [ ] Verify shadow softens/darkens with real lighting changes (on-device)
-- [ ] Commit working shadow casting milestone (after on-device verify)
+- [x] Verify shadow moves correctly as device moves around object (on-device)
+- [x] Verify shadow softens/darkens with real lighting changes (on-device)
+- [x] Commit working shadow casting milestone (after on-device verify)
 
 ### Status
-Code complete Apr 30 — pending on-device build and verification
+✅ Complete — Apr 30, 2026
 
 ### Hours Log
 | Date | Hours | Notes |

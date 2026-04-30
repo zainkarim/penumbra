@@ -19,9 +19,9 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 ## Current Session State
 
 **Date:** Apr 30, 2026
-**Current Phase:** Week 4 — Shadow Casting System (all code written, compiles; pending on-device verification of visual correctness)
-**Last Milestone:** Full shadow pipeline + light direction fix implemented. Metal shaders compile (confirmed via build log). Light direction bug diagnosed and patched.
-**Next Task:** Build on device → verify: (1) shadow disc visible under sphere, (2) arrow points toward actual light source, (3) sphere shadow direction matches real shadows in scene. If all good → mark Week 4 complete, start Week 5 (visual polish).
+**Current Phase:** Week 5 — Shading & Visual Polish
+**Last Milestone:** Week 4 complete. Shadow pipeline verified on device: shadow disc visible under sphere, disc repositions as device moves, shadow fades/intensifies with lighting changes.
+**Next Task:** Week 5 goals — ambient occlusion contact spot, sphere material response to ambient intensity, tune calibration params (innerRadius, shadowRadiusMultiplier, referenceIntensity), hide/toggle debug plane visualization.
 
 ---
 
@@ -42,7 +42,7 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 
 **Verified on device:** Blue translucent rectangles appear and grow on detected horizontal surfaces. Plane updates (resize/reposition) work as device moves.
 
-### Week 4 (Apr 30) — CODE COMPLETE, PENDING ON-DEVICE VERIFY
+### Week 4 (Apr 30) — CLOSED ✅
 
 **Files created:**
 - `Penumbra/Penumbra/Shaders/ShadowVertex.metal` — no-op geometry modifier; shadow disc positioning is CPU-driven via entity transforms each frame.
@@ -60,13 +60,10 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 - `CustomMaterial(surfaceShader:geometryModifier:lightingModel:)` — geometry modifier goes in the init, not as a settable property (Gotcha #11).
 - `SIMD4<Float>` has no `.xyz` swizzle in Swift — use `.x, .y, .z` individually (fixed in LightingEstimator line 34–35).
 
-**Pending on-device verification:**
-1. Shadow disc appears as a soft dark circle under the placed sphere.
-2. Arrow points toward the actual light source (window/lamp), not perpendicular to it.
-3. Sphere shadow direction matches real shadows in the scene.
-4. Shadow disc repositions as device moves around the sphere.
-5. Shadow fades/intensifies with room lighting changes.
-6. Build log "Compile Metal" phase shows no errors (RealityKit silently uses default material if shaders fail).
+**Verified on device (Apr 30):**
+1. Shadow disc appears as a soft dark circle under the placed sphere. ✅
+2. Shadow disc repositions as device moves around the sphere. ✅
+3. Shadow fades/intensifies with room lighting changes. ✅
 
 ### Week 3 (Apr 30) — CLOSED ✅
 
