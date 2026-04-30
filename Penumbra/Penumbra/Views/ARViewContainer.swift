@@ -16,11 +16,19 @@ struct ARViewContainer: UIViewRepresentable {
 
     func makeUIView(context: Context) -> ARView {
         let arView = ARView(frame: .zero)
-        context.coordinator.sessionManager = ARSessionManager(arView: arView)
+
+        let lightingEstimator = LightingEstimator()
+        context.coordinator.lightingEstimator = lightingEstimator
+
+        let sessionManager = ARSessionManager(arView: arView)
+        sessionManager.lightingEstimator = lightingEstimator
+        context.coordinator.sessionManager = sessionManager
 
         let sceneManager = SceneManager()
         sceneManager.arView = arView
         context.coordinator.sceneManager = sceneManager
+
+        sessionManager.sceneManager = sceneManager
 
         let tap = UITapGestureRecognizer(
             target: context.coordinator,
@@ -38,6 +46,7 @@ struct ARViewContainer: UIViewRepresentable {
     final class Coordinator {
         var sessionManager: ARSessionManager?
         var sceneManager: SceneManager?
+        var lightingEstimator: LightingEstimator?
 
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
             sceneManager?.handleTap(gesture)

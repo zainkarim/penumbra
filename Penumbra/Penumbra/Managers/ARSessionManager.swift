@@ -16,6 +16,8 @@ final class ARSessionManager: NSObject {
     private(set) var detectedPlaneCount: Int = 0
 
     private let arView: ARView
+    var lightingEstimator: LightingEstimator?
+    var sceneManager: SceneManager?
 
     init(arView: ARView) {
         self.arView = arView
@@ -53,6 +55,15 @@ extension ARSessionManager: ARSessionDelegate {
             for anchor in anchors {
                 guard let plane = anchor as? ARPlaneAnchor else { continue }
                 updateDebugPlane(for: plane)
+            }
+        }
+    }
+
+    nonisolated func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        Task { @MainActor in
+            lightingEstimator?.update(frame: frame)
+            if let direction = lightingEstimator?.lightDirection {
+                sceneManager?.updateDebugArrow(lightDirection: direction)
             }
         }
     }

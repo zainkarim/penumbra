@@ -18,10 +18,10 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 
 ## Current Session State
 
-**Date:** Apr 3, 2026
-**Current Phase:** Phase 2 — Scene Geometry & Object Placement ✅ COMPLETE
-**Last Milestone:** Tap-to-place verified on device — white sphere anchors to detected plane and stays grounded as device moves.
-**Next Task:** Week 3 — LightingEstimator (ARLightEstimate + ARDirectionalLightEstimate).
+**Date:** Apr 30, 2026
+**Current Phase:** Phase 3 — Lighting Estimation ✅ COMPLETE
+**Last Milestone:** LightingEstimator integrated; debug arrow (cylinder + cone) visible in scene, reorients in real time to track estimated light direction.
+**Next Task:** Week 4 — Shadow Casting System (ShadowVertex.metal, ShadowFragment.metal, ShadowRenderer, CustomMaterial bridge).
 
 ---
 
@@ -41,6 +41,20 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 - `Penumbra/Penumbra/Managers/ARSessionManager.swift` — `@Observable @MainActor` ARKit session manager; `ARWorldTrackingConfiguration` with `.horizontal` plane detection and `.automatic` environment texturing; debug blue translucent plane visualization via `ModelEntity` + `SimpleMaterial`
 
 **Verified on device:** Blue translucent rectangles appear and grow on detected horizontal surfaces. Plane updates (resize/reposition) work as device moves.
+
+### Week 3 (Apr 30) — CLOSED ✅
+
+**Files created:**
+- `Penumbra/Penumbra/Managers/LightingEstimator.swift` — `@Observable @MainActor`; consumes `ARFrame` each frame; publishes `lightDirection: SIMD3<Float>`, `intensity: Float`, `colorTemperature: Float`; guards `ARDirectionalLightEstimate` availability; lux→[0,1] mapping with 1000 lux reference.
+
+**Files modified:**
+- `Penumbra/Penumbra/Managers/ARSessionManager.swift` — added `var lightingEstimator` and `var sceneManager` injection properties; added `session(_:didUpdate frame:)` delegate method that bridges to main actor, calls `lightingEstimator.update(frame:)` and `sceneManager.updateDebugArrow(lightDirection:)`.
+- `Penumbra/Penumbra/Managers/SceneManager.swift` — added `updateDebugArrow(lightDirection:)`, `makeDebugArrow()`, and `quaternion(from:to:)` helpers; debug arrow is cylinder+cone entity at world `[0, 0.2, -0.5]`, oriented via quaternion each frame.
+- `Penumbra/Penumbra/Views/ARViewContainer.swift` — added `lightingEstimator` to Coordinator; updated `makeUIView` to instantiate `LightingEstimator` and inject into `ARSessionManager` and `SceneManager`.
+
+**Verified on device:** _(pending — build and run to confirm arrow appears and reorients)_
+
+---
 
 ### Week 2 (Apr 3) — CLOSED ✅
 
@@ -158,5 +172,7 @@ All managers are `@MainActor` and `@Observable`.
    `@Observable` properties.
 
 7. **SceneManager must hold ARView weakly.** Use `weak var arView: ARView?` in SceneManager — `ARViewContainer`/`Coordinator` already owns the strong reference. A strong reference in SceneManager would create a retain cycle.
+
+8. **`session(_:didUpdate frame:)` fires at ~60 fps.** Each call creates a Swift concurrency Task via `Task { @MainActor in }`. This is acceptable overhead for a student project. A production app would batch updates or throttle with a frame counter.
 
 _(Add new gotchas here as discovered)_

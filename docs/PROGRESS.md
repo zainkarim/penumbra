@@ -65,21 +65,21 @@ _None_
 **Dates:** Apr 7–13 | **Budget:** 10 hrs | **Deadline:** Apr 13
 
 ### Goals
-- [ ] Implement LightingEstimator (@Observable)
-- [ ] Integrate ARLightEstimate (ambientIntensity, ambientColorTemperature)
-- [ ] Guard and extract ARDirectionalLightEstimate.primaryLightDirection
-- [ ] Implement lux → [0,1] intensity mapping (see SHADOW_MATH.md §3)
-- [ ] Map estimated light direction to virtual scene light source in real time
-- [ ] Visual debug: display light direction vector as an arrow entity
-- [ ] Commit working lighting estimation milestone
+- [x] Implement LightingEstimator (@Observable)
+- [x] Integrate ARLightEstimate (ambientIntensity, ambientColorTemperature)
+- [x] Guard and extract ARDirectionalLightEstimate.primaryLightDirection
+- [x] Implement lux → [0,1] intensity mapping (see SHADOW_MATH.md §3)
+- [x] Map estimated light direction to virtual scene light source in real time
+- [x] Visual debug: display light direction vector as an arrow entity
+- [x] Commit working lighting estimation milestone
 
 ### Status
-_Not started_
+✅ Complete — Apr 30, 2026
 
 ### Hours Log
 | Date | Hours | Notes |
 |------|-------|-------|
-| | | |
+| Apr 30 | — | |
 | **Total** | **—** | |
 
 ### Blockers
