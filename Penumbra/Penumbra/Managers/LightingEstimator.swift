@@ -16,7 +16,7 @@ final class LightingEstimator {
     private(set) var intensity: Float = 0.5
     private(set) var colorTemperature: Float = 6500
 
-    private let referenceIntensity: Float = 1000.0
+    private let referenceIntensity: Float = 800.0
 
     func update(frame: ARFrame) {
         guard let estimate = frame.lightEstimate else { return }

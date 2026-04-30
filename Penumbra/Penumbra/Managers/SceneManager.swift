@@ -60,6 +60,22 @@ final class SceneManager {
         try? shadowRenderer?.attachShadow(to: sphere, on: anchorEntity, sphereRadius: radius)
     }
 
+    // MARK: - Lighting Response
+
+    func updateObjectAppearance(intensity: Float) {
+        let brightness = CGFloat(0.4 + 0.6 * intensity)
+        let tint = UIColor(white: brightness, alpha: 1.0)
+        for object in placedObjects {
+            guard var comp = object.model else { continue }
+            var mat = SimpleMaterial()
+            mat.color    = .init(tint: tint, texture: nil)
+            mat.metallic = .float(0)
+            mat.roughness = .float(1)
+            comp.materials = [mat]
+            object.model = comp
+        }
+    }
+
     // MARK: - Debug Arrow
 
     func updateDebugArrow(lightDirection: SIMD3<Float>) {

@@ -14,6 +14,7 @@ import Observation
 final class ARSessionManager: NSObject {
 
     private(set) var detectedPlaneCount: Int = 0
+    var showDebugPlanes: Bool = false
 
     private let arView: ARView
     var lightingEstimator: LightingEstimator?
@@ -63,9 +64,11 @@ extension ARSessionManager: ARSessionDelegate {
     nonisolated func session(_ session: ARSession, didUpdate frame: ARFrame) {
         Task { @MainActor in
             lightingEstimator?.update(frame: frame)
-            if let direction = lightingEstimator?.lightDirection {
+            if let direction = lightingEstimator?.lightDirection,
+               let intensity = lightingEstimator?.intensity {
                 sceneManager?.updateDebugArrow(lightDirection: direction)
-                shadowRenderer?.update(lightDirection: direction, intensity: lightingEstimator?.intensity ?? 0.5)
+                shadowRenderer?.update(lightDirection: direction, intensity: intensity)
+                sceneManager?.updateObjectAppearance(intensity: intensity)
             }
         }
     }
@@ -84,6 +87,7 @@ extension ARSessionManager: ARSessionDelegate {
 
     @MainActor
     private func addDebugPlane(for anchor: ARPlaneAnchor) {
+        guard showDebugPlanes else { return }
         let anchorEntity = AnchorEntity(anchor: anchor)
         anchorEntity.name = debugAnchorName(for: anchor)
 
@@ -101,6 +105,7 @@ extension ARSessionManager: ARSessionDelegate {
 
     @MainActor
     private func updateDebugPlane(for anchor: ARPlaneAnchor) {
+        guard showDebugPlanes else { return }
         let name = debugAnchorName(for: anchor)
         guard let anchorEntity = arView.scene.anchors.first(where: { $0.name == name }),
               let planeEntity = anchorEntity.children.first as? ModelEntity else { return }

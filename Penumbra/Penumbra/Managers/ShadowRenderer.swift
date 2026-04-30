@@ -23,15 +23,20 @@ final class ShadowRenderer {
 
     private struct ShadowEntry {
         let sphere: ModelEntity
-        let shadow: ModelEntity
+        let shadow: ModelEntity   // directional shadow disc
+        let aoSpot: ModelEntity   // contact AO spot
     }
 
     private var entries: [ShadowEntry] = []
     private var materialTemplate: CustomMaterial?
 
-    private let innerRadius: Float = 0.4
-    private let shadowRadiusMultiplier: Float = 1.5
+    private let innerRadius: Float = 0.35
+    private let shadowRadiusMultiplier: Float = 1.8
     private let zOffset: Float = 0.001
+
+    private let aoRadiusMultiplier: Float = 0.6
+    private let aoIntensity:        Float = 0.75
+    private let aoInnerRadius:      Float = 0.1
 
     // MARK: - Setup
 
@@ -56,16 +61,27 @@ final class ShadowRenderer {
     // MARK: - Shadow Attachment
 
     func attachShadow(to sphere: ModelEntity, on anchor: AnchorEntity, sphereRadius: Float) throws {
-        guard materialTemplate != nil else { return }
+        guard let template = materialTemplate else { return }
 
+        // Directional shadow disc — repositioned each frame by update()
         let shadowRadius = sphereRadius * shadowRadiusMultiplier
-        let mesh = try makeShadowMesh(radius: shadowRadius)
-        let shadow = ModelEntity(mesh: mesh, materials: [materialTemplate!])
+        var shadowMat = template
+        shadowMat.custom.value = SIMD4<Float>(0.5, innerRadius, 0, 0)
+        let shadow = ModelEntity(mesh: try makeShadowMesh(radius: shadowRadius), materials: [shadowMat])
         shadow.components[GroundingShadowComponent.self] = GroundingShadowComponent(castsShadow: false)
         shadow.position.y = zOffset
-
         anchor.addChild(shadow)
-        entries.append(ShadowEntry(sphere: sphere, shadow: shadow))
+
+        // AO contact spot — pinned directly beneath sphere, never moves
+        let aoRadius = sphereRadius * aoRadiusMultiplier
+        var aoMat = template
+        aoMat.custom.value = SIMD4<Float>(aoIntensity, aoInnerRadius, 0, 0)
+        let aoSpot = ModelEntity(mesh: try makeShadowMesh(radius: aoRadius), materials: [aoMat])
+        aoSpot.components[GroundingShadowComponent.self] = GroundingShadowComponent(castsShadow: false)
+        aoSpot.position = SIMD3<Float>(sphere.position.x, zOffset + 0.001, sphere.position.z)
+        anchor.addChild(aoSpot)
+
+        entries.append(ShadowEntry(sphere: sphere, shadow: shadow, aoSpot: aoSpot))
     }
 
     // MARK: - Per-Frame Update
