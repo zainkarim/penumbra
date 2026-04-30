@@ -119,15 +119,15 @@ _None_
 **Dates:** Apr 21–25 | **Budget:** 6 hrs | **Deadline:** Apr 25
 
 ### Goals
-- [ ] Ambient occlusion at object contact point (dark spot at base of object)
-- [ ] Virtual object material response to ARKit ambient intensity
-- [ ] Tune shadow calibration parameters (innerRadius, referenceIntensity, etc.)
-- [ ] Remove debug plane visualization (or make it togglable)
-- [ ] On-device visual review: shadow looks plausible in multiple environments
-- [ ] Commit polished shadow milestone
+- [x] Ambient occlusion at object contact point (dark spot at base of object)
+- [x] Virtual object material response to ARKit ambient intensity
+- [x] Tune shadow calibration parameters (innerRadius, referenceIntensity, etc.)
+- [x] Remove debug plane visualization (or make it togglable)
+- [x] On-device visual review: shadow looks plausible in multiple environments
+- [x] Commit polished shadow milestone
 
 ### Status
-_Not started_
+✅ Complete — Apr 30, 2026
 
 ### Hours Log
 | Date | Hours | Notes |

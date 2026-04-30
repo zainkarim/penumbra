@@ -19,9 +19,9 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 ## Current Session State
 
 **Date:** Apr 30, 2026
-**Current Phase:** Week 5 — Shading & Visual Polish
-**Last Milestone:** Week 4 complete. Shadow pipeline verified on device: shadow disc visible under sphere, disc repositions as device moves, shadow fades/intensifies with lighting changes.
-**Next Task:** Week 5 goals — ambient occlusion contact spot, sphere material response to ambient intensity, tune calibration params (innerRadius, shadowRadiusMultiplier, referenceIntensity), hide/toggle debug plane visualization.
+**Current Phase:** Week 6 — Scene Refinement & Demo Build
+**Last Milestone:** Week 5 complete. AO contact spot verified (fixed z-fighting with +1 mm y-offset). Sphere brightness responds to ambient intensity. Debug planes hidden. Calibration tuned (innerRadius=0.35, shadowRadiusMultiplier=1.8, referenceIntensity=800).
+**Next Task:** Week 6 goals — shadow quality tuning pass, UI polish (SwiftUI HUD), demo scenario design, Instruments profiling, record demo video.
 
 ---
 
@@ -41,6 +41,18 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 - `Penumbra/Penumbra/Managers/ARSessionManager.swift` — `@Observable @MainActor` ARKit session manager; `ARWorldTrackingConfiguration` with `.horizontal` plane detection and `.automatic` environment texturing; debug blue translucent plane visualization via `ModelEntity` + `SimpleMaterial`
 
 **Verified on device:** Blue translucent rectangles appear and grow on detected horizontal surfaces. Plane updates (resize/reposition) work as device moves.
+
+### Week 5 (Apr 30) — CLOSED ✅
+
+**Files modified:**
+- `ShadowRenderer.swift` — added AO contact spot disc (radius = sphereRadius × 0.6, y = 0.002 to clear directional disc depth); tuned innerRadius=0.35, shadowRadiusMultiplier=1.8; AO uniforms: intensity=0.75, innerRadius=0.1
+- `SceneManager.swift` — added `updateObjectAppearance(intensity:)`: drives sphere tint brightness = 0.4 + 0.6 × intensity each frame
+- `ARSessionManager.swift` — added `showDebugPlanes = false`; guarded `addDebugPlane`/`updateDebugPlane`; wired `updateObjectAppearance` into per-frame update
+- `LightingEstimator.swift` — referenceIntensity 1000→800 lux
+
+**Bug fixed:** AO spot invisible from above due to z-fighting with directional disc at same y=0.001. Fixed by placing AO spot at y=0.002.
+
+**Verified on device:** AO spot visible from all angles, stays pinned under sphere. Sphere brightens/dims with room lighting. No debug plane clutter.
 
 ### Week 4 (Apr 30) — CLOSED ✅
 
