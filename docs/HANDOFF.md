@@ -105,35 +105,35 @@ CS 4361 Final Project | Spring 2026 | Zain Karim
 
 ## What Was Left Incomplete
 
-All code for Week 4 is written. Remaining items are on-device verification only (see Week 4 pending list above).
+Nothing. Weeks 1–5 are all closed. Build compiles and runs on device. All Week 5 features verified.
 
 ---
 
 ## Unresolved Bugs
 
-**Light direction may still be off after camera-transform fix.** On-device test needed. If the arrow is 180° inverted (points away from the light instead of toward it), change `LightingEstimator.swift:35` from `normalize(SIMD3<Float>(rotated.x, rotated.y, rotated.z))` to `normalize(SIMD3<Float>(-rotated.x, -rotated.y, -rotated.z))`. If the direction is still ~90° wrong, the convention for `primaryLightDirection` on this iOS version may differ — consider logging raw values and comparing to the known light source position.
+None currently known.
 
 ---
 
 ## Key Decisions Made
 
 - `ARSessionManager` takes `ARView` in its initializer (rather than creating it internally) so the view layer retains ownership of `ARView` and the manager stays focused on session logic.
-- Debug plane visualization uses a single `ModelEntity` plane mesh per anchor (not a dot grid) — simpler and cheaper for GPU. Will be removed or made togglable in Week 5.
 - `LightingEstimator` has no `import RealityKit` — enforces the contract that it never touches entities (per ARCHITECTURE.md).
 - `ARSessionManager` holds references to both `LightingEstimator` and `SceneManager` (injected after construction by `ARViewContainer`) so `session(_:didUpdate frame:)` can drive both in one place, matching ARCHITECTURE.md's data flow diagram.
+- AO contact spot is a separate `ModelEntity` disc child of the same anchor as the directional shadow, placed at `y = 0.002` (one millimeter above the directional disc at `y = 0.001`) to guarantee depth ordering. It reuses `ShadowFragment.metal` with different uniforms — no new shader needed.
+- Sphere material response uses `SimpleMaterial` tint driven each frame rather than switching to `PhysicallyBasedMaterial` — keeps the change minimal and avoids any CustomMaterial complexity on the object itself.
 
 ---
 
-## Exact Next Steps (Week 5 — Visual Polish)
+## Exact Next Steps (Week 6 — Scene Refinement & Demo Build)
 
-First: complete the on-device verification checklist in the Week 4 section above. Fix the light direction if still wrong (see Unresolved Bugs).
-
-Then, Week 5 goals (`docs/PROGRESS.md`):
-1. **Ambient occlusion contact spot** — small dark ellipse at the base of the sphere, always directly beneath it regardless of light direction. Simplest approach: a second, much smaller shadow disc (radius ≈ sphere_radius * 0.6) with high opacity and very small innerRadius (≈ 0.1), always at position (sphere.x, 0.001, sphere.z) with no light-direction offset.
-2. **Object material response to ambient intensity** — update the sphere's `SimpleMaterial` roughness or emissive based on `lightingEstimator.intensity` each frame so it looks brighter/dimmer with real lighting.
-3. **Tune calibration parameters** — on-device: adjust `innerRadius` (default 0.4), `shadowRadiusMultiplier` (default 1.5), `referenceIntensity` (default 1000 lux) in `ShadowRenderer.swift` to match observed appearance.
-4. **Remove or hide debug plane visualization** — make it togglable (a Bool flag in `ARSessionManager`) rather than permanently visible; default to hidden.
-5. **Commit polished milestone.**
+Week 6 goals (`docs/PROGRESS.md`):
+1. **Shadow quality tuning pass** — on-device, fine-tune edge softness and disc radius. Adjust `innerRadius`, `shadowRadiusMultiplier`, `aoRadiusMultiplier`, `aoIntensity` in `ShadowRenderer.swift` constants.
+2. **UI polish** — add a minimal SwiftUI HUD in `ContentView.swift`: tap instruction label ("Tap a surface to place"), plane detection count badge. Keep it unobtrusive.
+3. **Demo scenario design** — choose 2–3 real environments for the video (e.g., desk surface, floor in direct sunlight, table under a lamp).
+4. **Performance profiling** — Instruments Metal System Trace; confirm shadow mesh draw call < 0.5 ms.
+5. **Record demo video.**
+6. **Tag stable demo commit.**
 
 ---
 
@@ -225,5 +225,7 @@ All managers are `@MainActor` and `@Observable`.
 13. **Metal stdlib functions need `metal::` prefix in RealityKit shaders.** `<RealityKit/RealityKit.h>` does not include `using namespace metal;`, so standard library calls (`length`, `smoothstep`, `saturate`, `normalize`, etc.) must be written as `metal::length(...)`, `metal::smoothstep(...)`, etc. or the shader will fail to compile with "use of undeclared identifier".
 
 14. **`ARDirectionalLightEstimate.primaryLightDirection` is in camera-local space, not world space.** Despite the ARKit header comment saying "world space," empirical observation shows the direction is 90° off when the device is in landscape (matching a camera-to-world rotation mismatch). Fix: multiply by `frame.camera.transform` with `w=0` before storing: `let worldDir = (frame.camera.transform * SIMD4<Float>(rawDir, 0)).xyz`. If the result is 180° inverted instead, also negate: `lightDirection = normalize(-worldDir)`.
+
+15. **Multiple shadow discs at the same Y will z-fight.** When two transparent disc entities share the same `position.y`, the depth test is non-deterministic — one disc will occlude the other depending on draw order and camera angle. If you add any disc that should visually sit on top of another (e.g., AO spot above directional shadow), increment its Y by at least 0.001 m. Current values: directional disc at `y = 0.001`, AO spot at `y = 0.002`.
 
 _(Add new gotchas here as discovered)_
