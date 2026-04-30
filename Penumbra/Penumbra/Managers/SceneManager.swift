@@ -17,6 +17,7 @@ final class SceneManager {
     private(set) var placedObjects: [ModelEntity] = []
 
     weak var arView: ARView?
+    var shadowRenderer: ShadowRenderer?
     private var debugArrowAnchor: AnchorEntity?
 
     // MARK: - Tap Handling
@@ -40,21 +41,23 @@ final class SceneManager {
     private func placeObject(at hit: ARRaycastResult) {
         guard let arView, let planeAnchor = hit.anchor else { return }
 
-        let mesh = MeshResource.generateSphere(radius: 0.05)
+        let radius: Float = 0.05
+        let mesh = MeshResource.generateSphere(radius: radius)
         var material = SimpleMaterial()
         material.color = .init(tint: .white, texture: nil)
         material.metallic = .float(0)
         material.roughness = .float(1)
 
         let sphere = ModelEntity(mesh: mesh, materials: [material])
-        // Disable RealityKit built-in shadow — custom shadow mesh added in Week 4
+        sphere.position.y = radius  // Sit on the plane surface
         sphere.components[GroundingShadowComponent.self] = GroundingShadowComponent(castsShadow: false)
 
         let anchorEntity = AnchorEntity(anchor: planeAnchor)
         anchorEntity.addChild(sphere)
         arView.scene.addAnchor(anchorEntity)
-
         placedObjects.append(sphere)
+
+        try? shadowRenderer?.attachShadow(to: sphere, on: anchorEntity, sphereRadius: radius)
     }
 
     // MARK: - Debug Arrow

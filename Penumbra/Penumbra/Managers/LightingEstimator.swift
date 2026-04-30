@@ -27,9 +27,16 @@ final class LightingEstimator {
         // ARDirectionalLightEstimate requires environmentTexturing = .automatic
         // and is unavailable in plain/untextured environments — guard required.
         if let directional = estimate as? ARDirectionalLightEstimate {
-            lightDirection = normalize(directional.primaryLightDirection)
+            // primaryLightDirection appears to be in camera-local space despite docs
+            // saying "world space". Rotate into world space via the camera transform.
+            // w=0 applies rotation only (suppresses translation).
+            let rawDir = directional.primaryLightDirection
+            let rotated = frame.camera.transform * SIMD4<Float>(rawDir, 0)
+            lightDirection = normalize(SIMD3<Float>(rotated.x, rotated.y, rotated.z))
         } else {
-            lightDirection = [0, 1, 0]
+            // 45° default avoids the zero-spread shadow of straight-down [0,1,0]
+            // and prevents shadow matrix degeneracy (SHADOW_MATH.md §1 gotcha).
+            lightDirection = normalize(SIMD3<Float>(0.5, 1.0, 0.5))
         }
     }
 }

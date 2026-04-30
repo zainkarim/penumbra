@@ -27,8 +27,18 @@ struct ARViewContainer: UIViewRepresentable {
         let sceneManager = SceneManager()
         sceneManager.arView = arView
         context.coordinator.sceneManager = sceneManager
-
         sessionManager.sceneManager = sceneManager
+
+        let shadowRenderer = ShadowRenderer()
+        shadowRenderer.arView = arView
+        context.coordinator.shadowRenderer = shadowRenderer
+        sceneManager.shadowRenderer = shadowRenderer
+        sessionManager.shadowRenderer = shadowRenderer
+        do {
+            try shadowRenderer.loadMaterial()
+        } catch {
+            print("ShadowRenderer.loadMaterial failed: \(error)")
+        }
 
         let tap = UITapGestureRecognizer(
             target: context.coordinator,
@@ -47,6 +57,7 @@ struct ARViewContainer: UIViewRepresentable {
         var sessionManager: ARSessionManager?
         var sceneManager: SceneManager?
         var lightingEstimator: LightingEstimator?
+        var shadowRenderer: ShadowRenderer?
 
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
             sceneManager?.handleTap(gesture)

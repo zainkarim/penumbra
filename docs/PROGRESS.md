@@ -91,18 +91,18 @@ _None_
 **Dates:** Apr 14–20 | **Budget:** 18–20 hrs | **Deadline:** Apr 20
 
 ### Goals
-- [ ] Implement ShadowVertex.metal (planar shadow projection, see SHADOW_MATH.md §1)
-- [ ] Implement ShadowFragment.metal (alpha falloff, see SHADOW_MATH.md §2)
-- [ ] Implement ShadowRenderer: CustomMaterial bridge, disc mesh generation
-- [ ] Disable RealityKit built-in shadow pass on placed objects
-- [ ] Wire ShadowRenderer into SceneManager: create shadow entity per placed object
-- [ ] Update shadow matrix each frame with current light direction and plane Y
-- [ ] Verify shadow moves correctly as device moves around object
-- [ ] Verify shadow softens/darkens with real lighting changes
-- [ ] Commit working shadow casting milestone
+- [x] Implement ShadowVertex.metal (geometry modifier, no-op — CPU handles projection)
+- [x] Implement ShadowFragment.metal (alpha falloff via smoothstep, SHADOW_MATH.md §2)
+- [x] Implement ShadowRenderer: CustomMaterial bridge, disc mesh generation
+- [x] Disable RealityKit built-in shadow pass on placed objects
+- [x] Wire ShadowRenderer into SceneManager: create shadow entity per placed object
+- [x] Update shadow matrix each frame with current light direction and plane Y
+- [ ] Verify shadow moves correctly as device moves around object (on-device)
+- [ ] Verify shadow softens/darkens with real lighting changes (on-device)
+- [ ] Commit working shadow casting milestone (after on-device verify)
 
 ### Status
-_Not started_
+Code complete Apr 30 — pending on-device build and verification
 
 ### Hours Log
 | Date | Hours | Notes |

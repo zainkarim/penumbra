@@ -18,6 +18,7 @@ final class ARSessionManager: NSObject {
     private let arView: ARView
     var lightingEstimator: LightingEstimator?
     var sceneManager: SceneManager?
+    var shadowRenderer: ShadowRenderer?
 
     init(arView: ARView) {
         self.arView = arView
@@ -64,6 +65,7 @@ extension ARSessionManager: ARSessionDelegate {
             lightingEstimator?.update(frame: frame)
             if let direction = lightingEstimator?.lightDirection {
                 sceneManager?.updateDebugArrow(lightDirection: direction)
+                shadowRenderer?.update(lightDirection: direction, intensity: lightingEstimator?.intensity ?? 0.5)
             }
         }
     }
