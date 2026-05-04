@@ -4,12 +4,11 @@
 //
 //  Created by Zain Karim on 4/30/26.
 //
-//  Owns the CustomMaterial pipeline and one shadow disc entity per placed object.
-//  Each frame, ShadowRenderer:
-//    1. Repositions each disc using the planar shadow projection formula
-//       (SHADOW_MATH.md §1) evaluated on the CPU.
-//    2. Updates the material's custom uniform (intensity, innerRadius) so the
-//       GPU fragment shader (ShadowFragment.metal) can compute the soft edge.
+//  Owns the CustomMaterial pipeline and one shadow disc + one AO spot per placed object.
+//  Both discs stay centered at the sphere footprint (no geometry movement).
+//  Each frame, ShadowRenderer computes the normalized shadow direction and passes it
+//  via custom uniform (.z, .w) so ShadowFragment.metal can render an asymmetric opacity
+//  gradient — darker on the shadow side, lighter on the lit side.
 
 import Metal
 import RealityKit
@@ -25,18 +24,21 @@ final class ShadowRenderer {
         let sphere: ModelEntity
         let shadow: ModelEntity   // directional shadow disc
         let aoSpot: ModelEntity   // contact AO spot
+        let sphereRadius: Float   // base (unscaled) radius — used to clamp disc offset
     }
 
     private var entries: [ShadowEntry] = []
     private var materialTemplate: CustomMaterial?
 
-    private let innerRadius: Float = 0.35
-    private let shadowRadiusMultiplier: Float = 1.8
+    // innerRadius ≈ 0: nearly the entire disc is gradient → no visible hard boundary at any camera angle.
+    // shadowRadiusMultiplier = 5: disc is 5× sphere radius → edge is always far from the sphere.
+    private let innerRadius: Float = 0.02
+    private let shadowRadiusMultiplier: Float = 5.0
     private let zOffset: Float = 0.001
 
-    private let aoRadiusMultiplier: Float = 0.6
-    private let aoIntensity:        Float = 0.75
-    private let aoInnerRadius:      Float = 0.1
+    private let aoRadiusMultiplier: Float = 2.0
+    private let aoIntensity:        Float = 0.55
+    private let aoInnerRadius:      Float = 0.15
 
     // MARK: - Setup
 
@@ -81,31 +83,53 @@ final class ShadowRenderer {
         aoSpot.position = SIMD3<Float>(sphere.position.x, zOffset + 0.001, sphere.position.z)
         anchor.addChild(aoSpot)
 
-        entries.append(ShadowEntry(sphere: sphere, shadow: shadow, aoSpot: aoSpot))
+        entries.append(ShadowEntry(sphere: sphere, shadow: shadow, aoSpot: aoSpot, sphereRadius: sphereRadius))
+    }
+
+    // MARK: - Lifecycle
+
+    func removeAll() {
+        entries.removeAll()
+    }
+
+    func updateScale(_ scale: Float) {
+        for entry in entries {
+            entry.shadow.scale = SIMD3<Float>(repeating: scale)
+            entry.aoSpot.scale = SIMD3<Float>(repeating: scale)
+        }
     }
 
     // MARK: - Per-Frame Update
 
     func update(lightDirection: SIMD3<Float>, intensity: Float) {
-        guard var material = materialTemplate else { return }
-        material.custom.value = SIMD4<Float>(intensity, innerRadius, 0, 0)
-
-        // Safe light direction: skip degenerate grazing angles
-        let L = normalize(lightDirection)
-        let safeL: SIMD3<Float> = abs(L.y) > 0.001 ? L : normalize(SIMD3<Float>(0.5, 1.0, 0.5))
-
         for entry in entries {
-            // Planar shadow projection (SHADOW_MATH.md §1, horizontal plane n=(0,1,0))
-            // t = sphere.y / L.y;  shadow_center = sphere_pos - t * L
-            let spherePos = entry.sphere.position
-            let t = spherePos.y / safeL.y
-            entry.shadow.position.x = spherePos.x - t * safeL.x
-            entry.shadow.position.z = spherePos.z - t * safeL.z
+            let rawCenter = ShadowMath.shadowCenter(
+                spherePos: entry.sphere.position,
+                lightDir: lightDirection
+            )
 
-            // Push updated intensity to entity material
-            guard var comp = entry.shadow.model else { continue }
-            comp.materials = [material]
-            entry.shadow.model = comp
+            let rawX = rawCenter.x
+            let rawZ = rawCenter.y
+            let dist = (rawX * rawX + rawZ * rawZ).squareRoot()
+
+            // Normalized shadow direction for the shader's directional gradient.
+            // Both discs stay centered — directionality comes from asymmetric opacity in the shader.
+            let dirX: Float = dist > 0.001 ? rawX / dist : 0
+            let dirZ: Float = dist > 0.001 ? rawZ / dist : 0
+
+            // Update shadow disc material: intensity + direction each frame.
+            guard var discComp = entry.shadow.model,
+                  var discMat  = discComp.materials.first as? CustomMaterial else { continue }
+            discMat.custom.value = SIMD4<Float>(intensity, innerRadius, dirX, dirZ)
+            discComp.materials   = [discMat]
+            entry.shadow.model   = discComp
+
+            // Update AO spot material: direction each frame (its intensity/innerRadius are fixed).
+            guard var aoComp = entry.aoSpot.model,
+                  var aoMat  = aoComp.materials.first as? CustomMaterial else { continue }
+            aoMat.custom.value = SIMD4<Float>(aoIntensity, aoInnerRadius, dirX, dirZ)
+            aoComp.materials   = [aoMat]
+            entry.aoSpot.model = aoComp
         }
     }
 

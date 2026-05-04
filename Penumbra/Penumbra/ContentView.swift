@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var hudState = HUDState()
+
     var body: some View {
-        ARViewContainer()
-            .ignoresSafeArea()
+        ZStack {
+            ARViewContainer(hudState: hudState)
+                .ignoresSafeArea()
+            HUDOverlayView(hudState: hudState)
+        }
     }
 }

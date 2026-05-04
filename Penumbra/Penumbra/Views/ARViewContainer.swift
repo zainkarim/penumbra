@@ -10,6 +10,8 @@ import RealityKit
 
 struct ARViewContainer: UIViewRepresentable {
 
+    let hudState: HUDState
+
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
@@ -29,6 +31,9 @@ struct ARViewContainer: UIViewRepresentable {
         context.coordinator.sceneManager = sceneManager
         sessionManager.sceneManager = sceneManager
 
+        sessionManager.hudState = hudState
+        sceneManager.hudState = hudState
+
         let shadowRenderer = ShadowRenderer()
         shadowRenderer.arView = arView
         context.coordinator.shadowRenderer = shadowRenderer
@@ -46,6 +51,12 @@ struct ARViewContainer: UIViewRepresentable {
         )
         arView.addGestureRecognizer(tap)
 
+        let pinch = UIPinchGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handlePinch(_:))
+        )
+        arView.addGestureRecognizer(pinch)
+
         return arView
     }
 
@@ -61,6 +72,10 @@ struct ARViewContainer: UIViewRepresentable {
 
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
             sceneManager?.handleTap(gesture)
+        }
+
+        @objc func handlePinch(_ gesture: UIPinchGestureRecognizer) {
+            sceneManager?.handlePinch(gesture)
         }
     }
 }
